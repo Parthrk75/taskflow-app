@@ -1,0 +1,19 @@
+{% macro priority_badge(p) -%}
+<span class="badge rounded-pill text-bg-{{ {'high': 'danger', 'medium': 'warning', 'low': 'secondary'}[p] }}">{{ p|capitalize }}</span>
+{%- endmacro %}
+
+{% macro status_badge(s) -%}
+<span class="badge text-bg-{{ {'todo': 'secondary', 'in_progress': 'primary', 'done': 'success'}[s] }}">{{ s|replace('_', ' ')|title }}</span>
+{%- endmacro %}
+
+{% macro due_label(t) -%}
+{% if t.due_date %}
+  {% if t.status != 'done' and t.due_date < today %}
+    <span class="text-danger fw-semibold"><i class="bi bi-exclamation-circle"></i> {{ t.due_date.strftime('%d %b %Y') }}</span>
+  {% else %}
+    <span class="text-body-secondary">{{ t.due_date.strftime('%d %b %Y') }}</span>
+  {% endif %}
+{% else %}
+  <span class="text-body-tertiary">—</span>
+{% endif %}
+{%- endmacro %}

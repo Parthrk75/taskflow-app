@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}System status{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 mb-0">System status</h1>
+    <p class="text-body-secondary mb-0">Live view of both tiers of the application.</p>
+  </div>
+  <a href="{{ url_for('main.system_status') }}" class="btn btn-outline-primary"><i class="bi bi-arrow-clockwise"></i> Refresh</a>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card h-100 border-success">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <h2 class="h6 text-uppercase text-body-secondary">Tier 1 · Application</h2>
+          <span class="badge text-bg-success">Healthy</span>
+        </div>
+        <div class="fs-5 fw-semibold"><i class="bi bi-filetype-py"></i> Flask + Gunicorn</div>
+        <p class="small text-body-secondary mb-0">Responding from <code>{{ info['Pod / host'] }}</code>.
+          With several replicas, refresh a few times: the name changes as the Service load-balances.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card h-100 {{ 'border-success' if db.ok else 'border-danger' }}">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <h2 class="h6 text-uppercase text-body-secondary">Tier 2 · Database</h2>
+          <span class="badge text-bg-{{ 'success' if db.ok else 'danger' }}">{{ 'Connected' if db.ok else 'Unreachable' }}</span>
+        </div>
+        <div class="fs-5 fw-semibold"><i class="bi bi-database"></i> MySQL</div>
+        {% if db.ok %}
+        <p class="small text-body-secondary mb-0">Query latency {{ db.latency_ms }} ms · {{ db.tasks }} tasks · {{ db.size }} on disk</p>
+        {% else %}
+        <p class="small text-danger mb-0">{{ db.error }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-transparent fw-semibold">Runtime</div>
+      <table class="table mb-0">
+        <tbody>
+          {% for k, v in info.items() %}
+          <tr><th class="w-50 fw-normal text-body-secondary">{{ k }}</th><td>{{ v }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-transparent fw-semibold">Database</div>
+      {% if db.ok %}
+      <table class="table mb-0">
+        <tbody>
+          <tr><th class="w-50 fw-normal text-body-secondary">Database</th><td>{{ db.name }}</td></tr>
+          <tr><th class="fw-normal text-body-secondary">Size</th><td>{{ db.size }}</td></tr>
+          <tr><th class="fw-normal text-body-secondary">Latency</th><td>{{ db.latency_ms }} ms</td></tr>
+          <tr><th class="fw-normal text-body-secondary">Server</th><td class="small">{{ db.version }}</td></tr>
+        </tbody>
+      </table>
+      {% else %}
+      <div class="card-body text-body-secondary">No database details available.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<p class="mt-4 small text-body-secondary">
+  Probe endpoints:
+  <a href="{{ url_for('main.live') }}"><code>/live</code></a> ·
+  <a href="{{ url_for('main.health') }}"><code>/health</code></a> ·
+  <a href="{{ url_for('main.api_tasks') }}"><code>/api/tasks</code></a>
+</p>
+{% endblock %}

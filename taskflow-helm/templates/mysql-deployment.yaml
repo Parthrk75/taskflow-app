@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskflow-mysql
+  labels:
+    app: taskflow-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taskflow-mysql
+  template:
+    metadata:
+      labels:
+        app: taskflow-mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "RootPass123"
+            - name: MYSQL_DATABASE
+              value: "tasksdb"
+            - name: MYSQL_USER
+              value: "taskuser"
+            - name: MYSQL_PASSWORD
+              value: "taskpass"
